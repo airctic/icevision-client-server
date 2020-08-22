@@ -1,8 +1,10 @@
 import streamlit as st
-# from requests_toolbelt.multipart.encoder import MultipartEncoder
+from requests_toolbelt.multipart.encoder import MultipartEncoder
 import requests
 from PIL import Image
 import io
+
+st.set_option("deprecation.showfileUploaderEncoding", False)
 
 pennfundan_images = [
     "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/kids_crossing_street.jpg",
@@ -17,65 +19,62 @@ pennfundan_images = [
 ]
 
 # fastapi endpoint
-url = 'http://fastapi:8000'
-endpoint = '/segmentation'
+url = "http://fastapi:8000"
+endpoint = "/segmentation"
 
-def process_img_url(server_url: str, img_url: str):
 
-    full_url = f'{server_url}/{img_url}'
-    r = requests.post(full_url,
-                      headers={'Content-Type': 'text'},
-                      timeout=8000)
-
+def process(uploaded_file, server_url: str):
+    m = MultipartEncoder(fields={"file": ("filename", uploaded_file, "image/jpeg")})
+    r = requests.post(
+        server_url, data=m, headers={"Content-Type": m.content_type}, timeout=8000
+    )
     return r
 
 
-st.title('IceVision Web App')
+st.title("IceVision Web App")
 
-st.write('''Obtain semantic segmentation maps of the image in input via DeepLabV3 implemented in PyTorch.
+st.write(
+    """Obtain semantic segmentation maps of the image in input via DeepLabV3 implemented in PyTorch.
          This streamlit example uses a FastAPI service as backend.
-         Visit this URL at `:8000/docs` for FastAPI documentation.''')  # description and instructions
+         Visit this URL at `:8000/docs` for FastAPI documentation."""
+)  # description and instructions
 
-st.markdown("### ** Paste Your Image URL**")
-my_placeholder = st.empty()
+# st.markdown("### ** Paste Your Image URL**")
+# my_placeholder = st.empty()
 
-index = 0
-image_path = pennfundan_images[index]
-image_url_key = f"image_url_key-{index}"
-image_url = my_placeholder.text_input(label="", value=image_path, key=image_url_key)
+# index = 0
+# image_path = pennfundan_images[index]
+# image_url_key = f"image_url_key-{index}"
+# image_url = my_placeholder.text_input(label="", value=image_path, key=image_url_key)
+
+uploaded_file = st.file_uploader("insert image")  # image upload widget
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
 
 
-if st.button('Get Masks'):
-
-    if image_url is None:
-        st.write("Insert an image URL!") 
+if st.button("Get segmentation map"):
+    if uploaded_file is None:
+        st.write("Insert an image!")  # handle case with no image
     else:
-        segments = process_img_url(url+endpoint, image_url)
-        segmented_image = Image.open(io.BytesIO(segments.content)).convert('RGB')
-        st.image(segmented_image) 
+        segments = process(uploaded_file, url + endpoint)
+        segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
+        st.image([image, segmented_image], width=300)  # output dyptich
 
 
-# image = st.file_uploader('insert image')  # image upload widget
-# 
-# def process(image, server_url: str):
+# def process_img_url(server_url: str, img_url: str):
 
-#     m = MultipartEncoder(
-#         fields={'file': ('filename', image, 'image/jpeg')}
-#         )
-
-#     r = requests.post(server_url,
-#                       data=m,
-#                       headers={'Content-Type': m.content_type},
-#                       timeout=8000)
+#     full_url = f"{server_url}/{img_url}"
+#     r = requests.post(full_url, headers={"Content-Type": "text"}, timeout=8000)
 
 #     return r
 
 
-# if st.button('Get segmentation map'):
+# if st.button("Get Masks"):
 
-#     if image is None:
-#         st.write("Insert an image!")  # handle case with no image
+#     if image_url is None:
+#         st.write("Insert an image URL!")
 #     else:
-#         segments = process(image, url+endpoint)
-#         segmented_image = Image.open(io.BytesIO(segments.content)).convert('RGB')
-#         st.image([image, segmented_image], width=300)  # output dyptich
+#         segments = process_img_url(url + endpoint, image_url)
+#         segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
+#         st.image(segmented_image)
