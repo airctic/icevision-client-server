@@ -30,9 +30,6 @@ def sidebar_ui():
     st.sidebar.image(
         "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/icevision-deploy-small.png"
     )
-    page = st.sidebar.selectbox(
-        "Choose a dataset", ["PETS", "PennFundan", "Fridge Objects", "Raccoon"]
-    )  # pages
 
 
 # This sidebar UI lets the user select model thresholds.

@@ -6,7 +6,6 @@ import io
 from masks import *
 
 MASK_PENNFUNDAN_WEIGHTS_URL = "https://github.com/airctic/model_zoo/releases/download/pennfudan_maskrcnn_resnet50fpn/pennfudan_maskrcnn_resnet50fpn.zip"
-# img_url = "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/image2.png"
 
 class_map = icedata.pennfudan.class_map()
 model = load_model(class_map=class_map, url=MASK_PENNFUNDAN_WEIGHTS_URL)
