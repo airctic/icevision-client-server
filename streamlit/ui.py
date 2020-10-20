@@ -19,8 +19,28 @@ pennfundan_images = [
 ]
 
 # fastapi endpoint
-url = "http://fastapi:8000"
+# url = "http://fastapi:8000"
+url = "http://127.0.0.1:8000"
+
 endpoint = "/segmentation"
+
+
+def sidebar_ui():
+    # st.sidebar.image("images/airctic-logo-medium.png")
+    st.sidebar.image(
+        "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/icevision-deploy-small.png"
+    )
+    page = st.sidebar.selectbox(
+        "Choose a dataset", ["PETS", "PennFundan", "Fridge Objects", "Raccoon"]
+    )  # pages
+
+
+# This sidebar UI lets the user select model thresholds.
+def object_detector_ui():
+    # st.sidebar.markdown("# Model Thresholds")
+    detection_threshold = st.sidebar.slider("Detection threshold", 0.0, 1.0, 0.5, 0.01)
+    mask_threshold = st.sidebar.slider("Mask threshold", 0.0, 1.0, 0.5, 0.01)
+    return detection_threshold, mask_threshold
 
 
 def process(uploaded_file, server_url: str):
@@ -31,50 +51,33 @@ def process(uploaded_file, server_url: str):
     return r
 
 
-st.title("IceVision Web App")
+def run_app():
+    sidebar_ui()
 
-st.write(
-    """Obtain semantic segmentation maps of the image in input via DeepLabV3 implemented in PyTorch.
-         This streamlit example uses a FastAPI service as backend.
-         Visit this URL at `:8000/docs` for FastAPI documentation."""
-)  # description and instructions
+    # Draw the threshold parameters for object detection model.
+    detection_threshold, mask_threshold = object_detector_ui()
 
-# st.markdown("### ** Paste Your Image URL**")
-# my_placeholder = st.empty()
+    bbox = st.sidebar.checkbox(label="Bounding Box", value=False)
 
-# index = 0
-# image_path = pennfundan_images[index]
-# image_url_key = f"image_url_key-{index}"
-# image_url = my_placeholder.text_input(label="", value=image_path, key=image_url_key)
+    st.sidebar.image(
+        "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/airctic-logo-medium.png"
+    )
 
-uploaded_file = st.file_uploader("insert image")  # image upload widget
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.markdown("### ** Insert an image**")
+    uploaded_file = st.file_uploader("")  # image upload widget
+    my_placeholder = st.empty()
+    if uploaded_file is not None:
+        image = Image.open(uploaded_file)
+        my_placeholder.image(image, caption="", use_column_width=True)
 
-
-if st.button("Get segmentation map"):
-    if uploaded_file is None:
-        st.write("Insert an image!")  # handle case with no image
-    else:
-        segments = process(uploaded_file, url + endpoint)
-        segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
-        st.image([image, segmented_image], width=300)  # output dyptich
+    if st.button("Get Masks"):
+        if uploaded_file is None:
+            st.write("Insert an image!")  # handle case with no image
+        else:
+            segments = process(uploaded_file, url + endpoint)
+            segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
+            my_placeholder.image(segmented_image)
 
 
-# def process_img_url(server_url: str, img_url: str):
-
-#     full_url = f"{server_url}/{img_url}"
-#     r = requests.post(full_url, headers={"Content-Type": "text"}, timeout=8000)
-
-#     return r
-
-
-# if st.button("Get Masks"):
-
-#     if image_url is None:
-#         st.write("Insert an image URL!")
-#     else:
-#         segments = process_img_url(url + endpoint, image_url)
-#         segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
-#         st.image(segmented_image)
+if __name__ == "__main__":
+    run_app()
