@@ -1,4 +1,4 @@
-# IceVision Deployment using Streamlit and FastAPI
+# IceVision Deployment using FastAPI and Streamlit
 
 
 ## Installation
@@ -35,7 +35,7 @@ uvicorn server:app --reload
 cd streamlit
 streamlit run ui.py
 ```
-
+Press **Ctrl+Click** on the http://192.168.2.11:8501 URL to open the app in your local browser
 
 ## Credit:
 This implementation is inspired by the following blog post:
