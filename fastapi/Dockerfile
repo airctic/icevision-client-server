@@ -8,7 +8,7 @@ WORKDIR /fastapi
 
 RUN pip install -r requirements.txt -f https://download.pytorch.org/whl/torch_stable.html
 
-# RUN pip install git+git://github.com/airctic/mantisshrimp.git#egg=mantisshrimp[inference] --upgrade
+RUN pip install icevision[inference] icedata
 
 COPY . /fastapi
 
