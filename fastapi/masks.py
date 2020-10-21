@@ -34,7 +34,13 @@ def image_from_url(url):
 
 
 def predict(
-    model, image, detection_threshold: float = 0.5, mask_threshold: float = 0.5
+    model, 
+    image, 
+    detection_threshold: float = 0.5, 
+    mask_threshold: float = 0.5, 
+    display_label=True,
+    display_bbox=True,
+    display_mask=True,
 ):
     img = np.array(image)
     tfms_ = tfms.A.Adapter([tfms.A.Normalize()])
@@ -51,18 +57,32 @@ def predict(
     return samples[0]["img"], preds[0]
 
 
-def get_masks(model, binary_image, class_map=None):
+def get_masks(model, binary_image, 
+    class_map=None, 
+    detection_threshold: float = 0.5, 
+    mask_threshold: float = 0.5, 
+    display_label=True,
+    display_bbox=True,
+    display_mask=True,
+    ):
     input_image = PIL.Image.open(io.BytesIO(binary_image)).convert("RGB")
-    img, pred = predict(model=model, image=input_image)
+    img, pred = predict(model=model, 
+        image=input_image, 
+        detection_threshold=detection_threshold, 
+        mask_threshold=mask_threshold,
+        display_label=display_label,
+        display_bbox=display_bbox,
+        display_mask=display_mask,
+    )
 
     img = draw_pred(
         img=img,
         pred=pred,
         class_map=class_map,
         denormalize_fn=denormalize_imagenet,
-        display_label=True,
-        display_bbox=True,
-        display_mask=True,
+        display_label=display_label,
+        display_bbox=display_bbox,
+        display_mask=display_mask,
     )
     img = PIL.Image.fromarray(img)
     # print("Output Image: ", img.size, type(img))

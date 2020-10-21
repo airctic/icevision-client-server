@@ -54,7 +54,9 @@ def run_app():
     # Draw the threshold parameters for object detection model.
     detection_threshold, mask_threshold = object_detector_ui()
 
-    bbox = st.sidebar.checkbox(label="Bounding Box", value=False)
+    label = st.sidebar.checkbox(label="Label", value=True)
+    bbox = st.sidebar.checkbox(label="Bounding Box", value=True)
+    mask = st.sidebar.checkbox(label="Mask", value=True)
 
     st.sidebar.image(
         "https://raw.githubusercontent.com/ai-fast-track/ice-streamlit/master/images/airctic-logo-medium.png"
@@ -71,7 +73,10 @@ def run_app():
         if uploaded_file is None:
             st.write("Insert an image!")  # handle case with no image
         else:
-            segments = process(uploaded_file, url + endpoint)
+            server_url = f"{url}{endpoint}?detection_threshold={detection_threshold}&mask_threshold={mask_threshold}&label={label}&bbox={bbox}&mask={mask}"
+            # server_url = f"{url}{endpoint}"
+            print("server_url: ", server_url)
+            segments = process(uploaded_file, server_url)
             segmented_image = Image.open(io.BytesIO(segments.content)).convert("RGB")
             my_placeholder.image(segmented_image)
 
